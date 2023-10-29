@@ -1,6 +1,11 @@
 import React from "react";
 import ContactList from "./Layout/ContactList";
 import ConversationChat from "./Layout/ConversationChat";
+import  SentMessageBar  from "./Layout//SentMessageBar";
+import EmojiIcons from "../images/emoji.png"
+import AtachFileIcons from "../images/attach-file.png"
+import VoiceIcon from "../images/voice.png"
+import SentMessageIcon from "../images/paper.png"
 
 export default function Home(){
 
@@ -11,7 +16,9 @@ export default function Home(){
                 <ContactList/>
             </div>
             <div className="main-contact-list main-contact-list-chat  scrollable-container" >
-                <ConversationChat/>
+             
+                <ConversationChat/>    
+            
             </div>
           </div>
         </main>
