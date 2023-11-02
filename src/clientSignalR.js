@@ -9,6 +9,7 @@ const hubConnection = new signalR.HubConnectionBuilder()
 const startHubConnection = async () =>{
     try {
         await hubConnection.start();
+        await getPersonalConnectionId();
     } catch (error) {
         console.log("Error while starting the SignalR connection: ",error)
     }
@@ -24,6 +25,15 @@ const createNewContact = async (user, connectionId ) =>{
 
 const registerReceiveMessageHandler = (handler) =>{
     hubConnection.on("ReceiveMessage",handler)
+}
+
+const registerReceivePrivateMessageHandler = (user, message,listenSenderId) => {
+    try {
+        hubConnection.on("ReceivePrivateMessage",user, message,listenSenderId)
+    } catch (error) {
+        console.log("Error while listening for private message: ",error)
+    }
+    
 }
 
 const registerConnectionIdExist =  (handler) => {
@@ -46,12 +56,31 @@ const sendMessage = async (user, message) => {
     }
   };
 
-const getPersonalConnectionId = (name) =>{
+  const sendPrivateMessage = async (senderName,message,receiverConnectionId) =>{
     try {
-        hubConnection.invoke("GetPersonalConnectionId",name)
+         await hubConnection.invoke("SendPrivateMessage",senderName,message,receiverConnectionId)
     } catch (error) {
-        
+        console.error("Error occured while sending private message: ", error);
     }
+   
+  }
+
+const getPersonalConnectionId = async () =>{
+    try {
+        if(hubConnection.state === signalR.HubConnectionState.Connected)
+       await hubConnection.invoke("GetPersonalConnectionId")
+    } catch (error) {
+        console.error("Error while geeting connection Id: ", error);
+    }
+}
+
+const registerGetUserId = (result) =>{
+    try {
+           hubConnection.on("GetUserId", result)
+    } catch (error) {
+        console.error("Error while geeting connection Id: ", error);
+    }
+ 
 }
 
 const getAllConnectedUsers = async () =>{
@@ -63,4 +92,5 @@ const getAllConnectedUsers = async () =>{
 }
 
 export {startHubConnection,createNewContact,getPersonalConnectionId,sendMessage,
-    registerReceiveMessageHandler,getAllConnectedUsers,registerConnectionIdExist,registerSendConnectedUsersHandler};
+    registerReceiveMessageHandler,getAllConnectedUsers,registerConnectionIdExist,
+    registerGetUserId,registerSendConnectedUsersHandler,sendPrivateMessage,registerReceivePrivateMessageHandler};

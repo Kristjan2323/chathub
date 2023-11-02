@@ -3,9 +3,9 @@ import newChatIcon from "../../images/newChat.png"
 import filterChatsIcon from "../../images/filterChats.png"
 import searchIcon from "../../images/searchIcon.png"
 import Context from "../../context/Context";
-import {getPersonalConnectionId, startHubConnection,
+import {getPersonalConnectionId, startHubConnection,sendPrivateMessage,
   registerReceiveMessageHandler,registerSendConnectedUsersHandler,
-  sendMessage,createNewContact,getAllConnectedUsers,registerConnectionIdExist} from "../../clientSignalR"
+  sendMessage,createNewContact,registerGetUserId,getAllConnectedUsers,registerConnectionIdExist} from "../../clientSignalR"
 import useGlobalState from "../../context/useGlobalState";
 
 
@@ -14,34 +14,48 @@ const[showCreateChat,setShowCreateChat] = useState(false)
 const[showNewChatForm, setNewChatForm]= useState(false)
 const[inputConectionId,setInputConnectionId] =useState('')
 const[inputName,setInputName] = useState('')
-const[userConnectionId,setUserConnectionId] = useState('')
+const[userConnectionId,setUserConnectionId] = useState(null)
 const {contact,chat,actions} = useContext(Context)
 const[usersC,setUsers] = useState('')
   
 useEffect(() =>{
   startHubConnection();
+ 
+
 },[])
+
+useEffect(() =>{
+  
+
+  getPersonalConnectionId() 
+},[])
+
+function getPersonalConnectionId() {
+  new Promise((resolve, reject) => {
+    try {
+      registerGetUserId((result) => {
+        const userConId = result;
+        resolve(userConId);
+      });
+    } catch (error) {
+      console.error("This error occurred: ", error);
+      reject(error);
+    }
+  })
+    .then((userConId) => {
+      setUserConnectionId(userConId);
+    })
+    .catch((error) => {
+      console.error("Promise error: ", error);
+    });
+}
+
+
+console.log("This is user connId: ",userConnectionId)
 
 useEffect(() =>{
  console.log("chat::" , chat)
 },[chat])
- /** 
-const handleSingIn = () => {
-  try {
-   getPersonalConnectionId(inputName);
-     registerReceiveMessageHandler((conId) =>{
-      setUserConnectionId(conId)
-      console.log(userConnectionId)
-     })
-   console.log(userConnectionId)
-  } catch (error) {
-    console.log(error)
-  }
-}
-*/
-
-
-
 
 
 const handleCreateNewContact = async () =>{
@@ -163,7 +177,7 @@ function createConversationChatForNewContact(name, connectionId){
               </div>
               <div className="chat-icon-container">
                 <img className="chat-icon" onClick={handleShowCart} src={newChatIcon} alt="new-Caht" />
-                <img className="chat-icon" src={filterChatsIcon} alt="filter-chats"  />
+                <img className="chat-icon"  src={filterChatsIcon} alt="filter-chats"  />
               </div>
               {showCreateChat &&
               <div className="create-chat-dropdown-cont">

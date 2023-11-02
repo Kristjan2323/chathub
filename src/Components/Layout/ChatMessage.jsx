@@ -7,10 +7,14 @@ export default function ChatMessage({message,isOutgoing,sentTime}){
       }
     const messageClas = isOutgoing ? 'outgoing-message' : 'incoming-message';
        
-    const currentDateTime = new Date();
+    function GetDateTimeNow(){
+          const currentDateTime = new Date();
     const hours = currentDateTime.getHours().toString().padStart(2, '0');
     const minutes = currentDateTime.getMinutes().toString().padStart(2, '0');
     const formattedTime = `${hours}:${minutes}`;
+    return formattedTime
+    }
+  
 
 
 
@@ -23,7 +27,7 @@ export default function ChatMessage({message,isOutgoing,sentTime}){
                     {message}   
                 </div> 
              <div className="mesage-sent-time">
-                <p>{formattedTime}</p>  
+                <p>{GetDateTimeNow()}</p>  
              </div>
             </div>
            
