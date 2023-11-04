@@ -1,4 +1,4 @@
-import React, {useEffect, useState,useContext} from "react";
+import React, {useEffect, useState,useContext,useRef} from "react";
 import ChatMessage from "./ChatMessage";
 import Context from "../../context/Context";
 import { registerReceivePrivateMessageHandler } from "../../clientSignalR";
@@ -17,6 +17,9 @@ export default function ConversationChat(){
          setMessagesOfActiveChat(getMessages)
            console.log("This chat is active: ",activeChat)
            console.log("Messages  active: ",messagesOfActiveChat)
+
+         
+
     },[chat])
 
    
@@ -33,7 +36,8 @@ export default function ConversationChat(){
             }      
          ],     
       }
-    
+
+
       
     return(
              
@@ -43,10 +47,11 @@ export default function ConversationChat(){
             <ChatMessage 
                 key={index}               
                 message={msg?.messageSent}
-                isOutgoing={msg?.isOutgoing}             
+                isOutgoing={msg?.isOutgoing}     
+                timeSent = {msg?.dateTimeSent}        
             />
             )) }
-           
+          
             </div>  
        
        

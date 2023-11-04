@@ -1,13 +1,23 @@
-import React from "react";
+import React, {useEffect,useLayoutEffect, useState,useContext,useRef} from "react";
 import ContactList from "./Layout/ContactList";
 import ConversationChat from "./Layout/ConversationChat";
-import  SentMessageBar  from "./Layout//SentMessageBar";
-import EmojiIcons from "../images/emoji.png"
-import AtachFileIcons from "../images/attach-file.png"
-import VoiceIcon from "../images/voice.png"
-import SentMessageIcon from "../images/paper.png"
+import Context from "../context/Context";
 
 export default function Home(){
+
+  const{contact,chat,actions} = useContext(Context)
+  const [canScroll, setCanScroll] = useState(false)
+  const scrollableContainerRef = useRef(null);
+
+   useEffect(() => {
+    setCanScroll((prevCanScroll) => !prevCanScroll);
+  
+   },[chat])
+    
+   useEffect(() => {
+   
+    scrollableContainerRef?.current?.scrollIntoView();
+   },[canScroll])
 
     return(
         <main>
@@ -15,10 +25,10 @@ export default function Home(){
             <div className="main-contact-list scrollable-container">
                 <ContactList/>
             </div>
-            <div className="main-contact-list main-contact-list-chat  scrollable-container" >
+            <div className="main-contact-list main-contact-list-chat  scrollable-container ">
              
                 <ConversationChat/>    
-            
+                <div ref={scrollableContainerRef} />
             </div>
           </div>
         </main>

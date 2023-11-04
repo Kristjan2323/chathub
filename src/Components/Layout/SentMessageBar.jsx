@@ -61,11 +61,9 @@ console.log(activeChat)
       }
     });
    
-    actions({type: "setChat", payload:updateChat})
-   
+    actions({type: "setChat", payload:updateChat})  
   }
   
-
   const handleTypedMessage = (event) =>{  
     setTypedMessage(event.target.value)
   }
@@ -78,8 +76,8 @@ console.log(activeChat)
     return formattedTime
 }
     return(
-      <section>
-       
+
+      <section>       
         <div className="sent-message-bar">
           <div></div>
         <div className="sent-message-section-container">

@@ -33,8 +33,7 @@ const updateChat = chat?.map(chatItem => ({
 
 
   actions({type: "setChat", payload:updateChat})
-  //here works
-  //AddMessageToChat() 
+
 }
 
 useEffect(() => {
@@ -47,8 +46,7 @@ useEffect(() => {
   
    
       setRecieveMessage(receiveMessageModel)
-      //here doesnt work
-     // AddMessageToChat();
+   
     });
   }, []);
 
