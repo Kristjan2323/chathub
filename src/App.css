@@ -33,7 +33,7 @@ p{
 /* ContactList start style */  
 
 .section-contactList{
-  margin-top: 120px;
+  margin-top: 60px;
     max-width: 320px;
     min-width: 300px;
 }
@@ -96,9 +96,7 @@ cursor: pointer;
 }
 
 /* ChatMessage start style */
-.top-chatConversation-container{
 
-}
 .chat-conversation {
     display: flex;
     flex-direction: column;
@@ -161,12 +159,12 @@ cursor: pointer;
 
   .scrollable-container {
    
-    height:600px; /* Set the desired height */
+    height:550px; /* Set the desired height */
     overflow-y: auto; /* Enable vertical scrolling */
     border: 1px solid #ccc; /* Optional border for visibility */
     border-top: 0px;
     border-right: 0px;
-   
+   margin-top: -43px;
   }
 
   .main-contact-list{
@@ -202,17 +200,22 @@ cursor: pointer;
   
   /*Navbar style start   */
 
+.navContact-navChar-container{
+   display: grid;
+   grid-template-columns: 350.5px 1fr;
+  
+}
+
     .nav{
-      position:fixed;
+      
       
         padding: 20px;
         border: 1px solid #ccc;
         border-bottom: none;
-        max-width: 309.5px; 
-        background-color: white;
         top: auto;
         left: 30px;
         right: 10px;
+        z-index: 1000;
     }
   .nav-container{
     display: flex;
@@ -324,6 +327,44 @@ cursor: pointer;
   background-color: var(--TealGreen);
 }
 
+.chatConversation-navbar{
+  width: 100%;
+  height: 80px;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border-top:1px solid #ccc;
+  border-bottom: none;
+  box-shadow: 0 0 32px 0 rgba(146, 84, 84, 0.15);
+  margin-bottom: -5px;
+}
+
+.userDetails-chatConversation{
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.calling-icons-container{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 50px;
+  gap: 30px;
+}
+
+.calling-icons-container img{
+  width: 24px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.calling-icons-container img:hover{
+  background-color: var(--hoverGrey);
+}
+.userDetails-chatConversation img{
+  width: 34px;
+}
 /*Sent Message Section Style*/
 
 .sent-message-bar{

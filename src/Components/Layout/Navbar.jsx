@@ -1,7 +1,10 @@
 import React, {useContext, useEffect,useState} from "react";
 import newChatIcon from "../../images/newChat.png"
 import filterChatsIcon from "../../images/filterChats.png"
+import videoCallIcon from "../../images/video-call.png"
+import voiceCallIcon from "../../images/voice-call.png"
 import searchIcon from "../../images/searchIcon.png"
+import defaultProfilePic from "../../images/person_favicon.png"
 import Context from "../../context/Context";
 import {getPersonalConnectionId, startHubConnection,sendPrivateMessage,
   registerReceiveMessageHandler,registerSendConnectedUsersHandler,
@@ -16,19 +19,16 @@ const[inputConectionId,setInputConnectionId] =useState('')
 const[inputName,setInputName] = useState('')
 const[userConnectionId,setUserConnectionId] = useState(null)
 const {contact,chat,actions} = useContext(Context)
-const[usersC,setUsers] = useState('')
+const[activeChat, setActiveChat] = useState()
   
 useEffect(() =>{
   startHubConnection();
- 
-
 },[])
 
 useEffect(() =>{
-  
-
   getPersonalConnectionId() 
 },[])
+
 
 function getPersonalConnectionId() {
   new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ function getPersonalConnectionId() {
         resolve(userConId);
       });
     } catch (error) {
-      console.error("This error occurred: ", error);
+      console.error("This error occurred while listeming for GetConnectionId: ", error);
       reject(error);
     }
   })
@@ -54,9 +54,12 @@ function getPersonalConnectionId() {
 console.log("This is user connId: ",userConnectionId)
 
 useEffect(() =>{
- console.log("chat::" , chat)
+  const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
+  setActiveChat(getActiveChat)
+
 },[chat])
 
+console.log("Ky eshte active chat in nav: ",activeChat)
 
 const handleCreateNewContact = async () =>{
   try {
@@ -89,7 +92,6 @@ function checkIfUserConnectionIdExsit(){
   try {
     let connectionIdExist = false;
     registerConnectionIdExist((result) => {
-   // console.log("Does Connection Id exist: ", result)
     connectionIdExist = result;
    
     resolve(connectionIdExist)
@@ -108,7 +110,6 @@ function checkIfUserExistInContacList(connectionId){
 }
 
 function createConversationChatForNewContact(name, connectionId){
-
   const chatModel  = {
     connectionId :connectionId,
     user : name,
@@ -119,41 +120,19 @@ function createConversationChatForNewContact(name, connectionId){
             messageSent : 'Contact 2 sent this message!',
             dateTimeSent : '',
             isOutgoing : true
-        }
-   
-     ],
-    
-        
+        } 
+     ],       
   }
 
   actions({type: "setChat", payload:[...chat,chatModel]})  
 
 }
 
-  const chatModel2  = {
-    connectionId : '',
-    user : '',
-    isChatConversationActive: false,
-    chatMessages: {
-     incommingMessages: [
-        {
-            inMessage : '',
-            dateTimeSent : ''
-        }
-     ],
-     outcomingMessages: [
-        {
-            outMessage : '',
-            dateTimeSent : ''
-        }
-     ]
-    }       
-  }
+
 
  function handleShowCart() {
   setShowCreateChat(!showCreateChat)
   setNewChatForm(false)
-  console.log("dddd")
  }
 
  function handleShowNewChatForm(){
@@ -170,6 +149,7 @@ function createConversationChatForNewContact(name, connectionId){
 
     return(
         <nav>
+          <div className="navContact-navChar-container">
             <div className="nav">
                 <div className="nav-container">
               <div>
@@ -213,6 +193,29 @@ function createConversationChatForNewContact(name, connectionId){
                 <img src={searchIcon} alt="search-icon" className="search-icon" />
                 <input type="search" placeholder="Search..." />
               </div>
+            </div>
+            {activeChat ? 
+            <div className="chatConversation-navbar">
+              <div className="userDetails-chatConversation">
+                <img src={defaultProfilePic} alt="profile-pic"  />
+                <p>{activeChat?.user}</p>
+              </div>
+              <div className="calling-icons-container">
+                <img src={videoCallIcon} alt="camera-icon" />
+                <img src={voiceCallIcon} alt="call-icon" />
+              </div>
+             
+              </div>
+              : 
+              <div className="chatConversation-navbar">
+              <div className="userDetails-chatConversation">
+               
+              </div>
+              <div className="calling-icons-container">
+                
+              </div>
+             
+              </div>}
             </div>
         </nav>
     )

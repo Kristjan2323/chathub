@@ -13,8 +13,6 @@ export default function ContactList(){
 
 const{contact,chat,actions} = useContext(Context)
 const[recieveMessage, setRecieveMessage] = useState(null)
-const[isMessageRecieved, setIsMessageRecieved] = useState(false)
-
 
 
 function handleSetChatActive(connectionId){
@@ -43,8 +41,7 @@ useEffect(() => {
         message: message,
         fromReceiverId: listenSenderId
       };
-  
-   
+    
       setRecieveMessage(receiveMessageModel)
    
     });
@@ -95,11 +92,6 @@ useEffect(() => {
 }
 
 
-
-const currentDateTime = new Date();
-const hours = currentDateTime.getHours().toString().padStart(2, '0');
-const minutes = currentDateTime.getMinutes().toString().padStart(2, '0');
-const formattedTime = `${hours}:${minutes}`;
     return(
         <section className="section-contactList">
           <div>
@@ -118,7 +110,7 @@ const formattedTime = `${hours}:${minutes}`;
                         </div>                    
                     </div>
                     <div className="last-message-sent-cont">
-                     <p className="time-last-message">{formattedTime}</p>
+                     <p className="time-last-message">{GetDateTimeNow()}</p>
                     </div>
                     </div>
                 </div>
