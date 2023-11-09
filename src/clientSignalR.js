@@ -23,8 +23,25 @@ const createNewContact = async (user, connectionId ) =>{
     }
 }
 
+const createNewGroup = async (UserRoomConnection) =>{
+    try {
+        await hubConnection.invoke("JoinRoom",UserRoomConnection)
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 const registerReceiveMessageHandler = (handler) =>{
     hubConnection.on("ReceiveMessage",handler)
+}
+
+const registerReceiveMessageJoinRoomHandler = (sender, message, room) =>{
+    try {
+          hubConnection.on("RecieveMessageJoinRoom",sender, message, room)
+    } catch (error) {
+        console.error("Error while creating group contact: ",error)
+    }
+  
 }
 
 const registerReceivePrivateMessageHandler = (user, message,listenSenderId) => {
@@ -39,6 +56,13 @@ const registerReceivePrivateMessageHandler = (user, message,listenSenderId) => {
 const registerConnectionIdExist =  (handler) => {
     try {
          hubConnection.on("ConnectionIdExist",handler)
+    } catch (error) {
+        
+    }
+}
+const registerRecieveVerificationRoomExist =  (handler) => {
+    try {
+         hubConnection.on("RecieveVerificationRoomExist",handler)
     } catch (error) {
         
     }
@@ -63,6 +87,19 @@ const sendMessage = async (user, message) => {
         console.error("Error occured while sending private message: ", error);
     }
    
+  }
+
+  const sendGroupMessage = async (message, room) =>{
+    try {
+       await hubConnection.invoke("SendGroupMessage",message, room) 
+    } catch (error) {
+        console.error(error)
+    }
+     
+  }
+
+  const registerRecieveGroupMessage =  (handler) =>{
+     hubConnection.on("ReceiveGroupMessage",handler)
   }
 
 const getPersonalConnectionId = async () =>{
@@ -91,6 +128,16 @@ const getAllConnectedUsers = async () =>{
     }
 }
 
-export {startHubConnection,createNewContact,getPersonalConnectionId,sendMessage,
-    registerReceiveMessageHandler,getAllConnectedUsers,registerConnectionIdExist,
+const checkIfAlreadyRoomExist = async (room) =>{
+    try {
+         await hubConnection.invoke("CheckIfAlreadyExistARoomWithSameName",room)
+    } catch (error) {
+        console.log(error)
+    }
+   
+}
+
+export {startHubConnection,createNewContact,createNewGroup,getPersonalConnectionId,sendMessage,checkIfAlreadyRoomExist,
+    registerReceiveMessageHandler,getAllConnectedUsers,registerRecieveVerificationRoomExist,
+    registerConnectionIdExist,registerReceiveMessageJoinRoomHandler,sendGroupMessage,registerRecieveGroupMessage,
     registerGetUserId,registerSendConnectedUsersHandler,sendPrivateMessage,registerReceivePrivateMessageHandler};

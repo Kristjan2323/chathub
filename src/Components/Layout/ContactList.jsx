@@ -1,17 +1,17 @@
 import React,{useSttate,useEffect, useState, useContext} from "react";
 import defaultProfilePic from "../../images/person_favicon.png"
+import groupIcon from "../../images/group.png"
 import checkMark from "../../images/checkmark-double-svgrepo-com.svg"
 import {getPersonalConnectionId, startHubConnection,
-    registerReceiveMessageHandler,registerReceivePrivateMessageHandler,
+    registerReceiveMessageHandler,registerReceivePrivateMessageHandler,registerReceiveMessageJoinRoomHandler,
     sendMessage} from "../../clientSignalR"
     import useGlobalState from "../../context/useGlobalState";
-import { useCallback } from "react";
 import Context from "../../context/Context";
 
 
 export default function ContactList(){
 
-const{contact,chat,actions} = useContext(Context)
+const{contact,currentUserConnectionId,chat,actions} = useContext(Context)
 const[recieveMessage, setRecieveMessage] = useState(null)
 
 
@@ -35,30 +35,55 @@ const updateChat = chat?.map(chatItem => ({
 }
 
 useEffect(() => {
-    registerReceivePrivateMessageHandler((user, message, listenSenderId) => {
+    registerReceivePrivateMessageHandler((user, message, listenSenderId,senderConnectionId) => {
+      if(user === null || user === undefined || message === null || message === undefined) return;
       const receiveMessageModel = {
         fromUser: user,
         message: message,
-        fromReceiverId: listenSenderId
+        fromReceiverId: listenSenderId,
+        senderConnectionId : senderConnectionId
       };
     
       setRecieveMessage(receiveMessageModel)
-   
+      console.log("ky bobi po dergon sms",user)
     });
   }, []);
 
   useEffect(() => {
+    registerReceiveMessageJoinRoomHandler((sender,userJoined,room) =>{
+      const message = (
+        <p>
+          <strong>{`Member ${userJoined}`}</strong> has joined the group.
+        </p>
+      );
+      const receiveMessageModel = {
+        fromUser: sender,
+        message: message,
+        fromReceiverId: room,
+        senderConnectionId : room
+      };
+    
+      setRecieveMessage(receiveMessageModel)
+      console.log(sender,room,userJoined)
+    })
+  })
+
+  useEffect(() => {
     if (recieveMessage) {
+      if(!recieveMessage.message) return;
       AddMessageToChat();
+      console.log("conn Id e derguesit:: ",recieveMessage.senderConnectionId)
     }
   }, [recieveMessage]);
   
   function AddMessageToChat() {
     if (!chat) return;
+    if(currentUserConnectionId === recieveMessage.senderConnectionId) return;
     console.log("Ky eshte essage model qe morem: ",recieveMessage)
       console.log("Ky eshte chati: ",chat)
      const messageModel = {
         messageSent: recieveMessage?.message,
+        messageSender: recieveMessage?.fromUser,
         dateTimeSent: GetDateTimeNow(),
         isOutgoing: false
       };
@@ -83,6 +108,11 @@ useEffect(() => {
     isOutgoing : false
   }
   
+const isCurrentUserSenderOfMessage = () =>{
+  let isCurrentUserTheSender = false
+  
+}
+
   function GetDateTimeNow(){
     const currentDateTime = new Date();
     const hours = currentDateTime.getHours().toString().padStart(2, '0');
@@ -99,7 +129,10 @@ useEffect(() => {
             <div key={index} onClick={ () => handleSetChatActive(cont.connectionId)} className="container-contactList">
                 <div className="single-chat-container">
                     <div className="profile-image-container">
-                        <img className="profile-image" src={defaultProfilePic} alt="profile-picture" />
+                        <img className="profile-image" 
+                        src={cont.chatType === 'privateChat' ? defaultProfilePic: groupIcon}
+                         alt="profile-picture" />
+                        
                     </div>
                     <div className="contact-cntainer">
                     <div className="contact-name-time-container">

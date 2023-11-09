@@ -5,6 +5,7 @@ import ChatMessage from "./ChatMessage";
 import Home from "../Home";
 import Navbar from "./Navbar";
 import SentMessageBar from "./SentMessageBar";
+
 export default function LayOut(){
 
 
@@ -12,8 +13,9 @@ export default function LayOut(){
         <>
         <Navbar/>
         <Home/>
+       
        <SentMessageBar/>
-
+      
    </>
     )
 }

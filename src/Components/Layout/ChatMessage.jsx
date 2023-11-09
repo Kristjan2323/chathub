@@ -1,28 +1,34 @@
-import React, {useState,useEffect} from "react";
+import React, {useState,useEffect,useContext} from "react";
+import Context from "../../context/Context";
 
-export default function ChatMessage({message,isOutgoing,timeSent}){
+
+export default function ChatMessage({message,messageSender,isOutgoing,timeSent}){
+    const {contact,currentUserConnectionId,groupContact,chat,actions} = useContext(Context)
+    const[activeChat, setActiveChat] = useState()
+ 
+ 
+    useEffect(() =>{
+        const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
+        setActiveChat(getActiveChat)
+      
+      },[chat])
+
     if (message === undefined) {
         // Return null if message is undefined to avoid rendering
         return null;
       }
+
+    
+      
+
     const messageClas = isOutgoing ? 'outgoing-message' : 'incoming-message';
     console.log( "Koha e dergimit te mesaxhit:: ",timeSent)
-    function GetDateTimeNow(){
-          const currentDateTime = new Date();
-    const hours = currentDateTime.getHours().toString().padStart(2, '0');
-    const minutes = currentDateTime.getMinutes().toString().padStart(2, '0');
-    const formattedTime = `${hours}:${minutes}`;
-    console.log( "Koha e dergimit te mesaxhit:: ",message)
-    return formattedTime
-    }
-  
-
-
 
   
     return(
-        <section>
+         <section>
         <div className="message-conatiner">
+            {activeChat?.chatType === 'privateChat' ? 
             <div className={`chat-message ${messageClas}`}>
                 <div>
                     {message}   
@@ -30,8 +36,18 @@ export default function ChatMessage({message,isOutgoing,timeSent}){
              <div className="mesage-sent-time">
                 <p>{timeSent}</p>  
              </div>
-            </div>
-           
+            </div>   
+             :
+             <div className={`chat-message ${messageClas} outgoing-message-chatGroup`}>
+             <div>
+                <p className="message-sender">{messageSender}</p>
+                <p>{message} </p>   
+             </div> 
+          <div className="mesage-sent-time">
+             <p>{timeSent}</p>  
+          </div>
+         </div>  
+           }              
         </div>
         </section>
     )

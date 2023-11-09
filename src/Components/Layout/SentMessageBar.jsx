@@ -3,7 +3,7 @@ import EmojiIcons from "../../images/emoji.png"
 import AtachFileIcons from "../../images/attach-file.png"
 import VoiceIcon from "../../images/voice.png"
 import SentMessageIcon from "../../images/paper.png"
-import {sendPrivateMessage} from "../../clientSignalR"
+import {sendPrivateMessage,sendGroupMessage} from "../../clientSignalR"
 import Context from "../../context/Context";
 
 export default function SentMessageBar(){
@@ -25,7 +25,12 @@ export default function SentMessageBar(){
   function sendMessage(){
     try {
      if(activeChat && typedMessage){
-      sendPrivateMessage('Kristi',typedMessage,activeChat.connectionId)
+      if(activeChat.chatType === 'privateChat'){
+        sendPrivateMessage('Kristi',typedMessage,activeChat.connectionId)
+      }
+      else{
+        sendGroupMessage(typedMessage,activeChat.connectionId)
+      }
       updateActiveChat()
       handleSetChatActive()
      setTypedMessage('')
@@ -37,6 +42,7 @@ export default function SentMessageBar(){
     }   
   }
 
+ 
   const  updateActiveChat = () => {
     setActiveChat((prevActiveChat) => ({
       ...prevActiveChat,
@@ -67,6 +73,13 @@ console.log(activeChat)
   const handleTypedMessage = (event) =>{  
     setTypedMessage(event.target.value)
   }
+
+  function handleKeyPress(event) {
+    if (event?.key === "Enter") {
+      event.preventDefault(); // Prevent form submission if inside a form element
+      document.getElementById("submitMessage").click();
+    }
+  }
    
   function GetDateTimeNow(){
     const currentDateTime = new Date();
@@ -76,7 +89,6 @@ console.log(activeChat)
     return formattedTime
 }
     return(
-
       <section>       
         <div className="sent-message-bar">
           <div></div>
@@ -89,12 +101,13 @@ console.log(activeChat)
           <input
           value={typedMessage}
           onChange={handleTypedMessage}
+          onKeyDown={handleKeyPress}
           className="input-sent-message"
             type="text"
             placeholder="Type a message..."
           />
           <div className="sentMessage-icon-cont">
-            <img className="sentMessage-icon" onClick={sendMessage} src={SentMessageIcon} alt="aent-message-icon" />
+            <img id="submitMessage" className="sentMessage-icon" onClick={sendMessage} src={SentMessageIcon} alt="aent-message-icon" />
           </div>
         </div>
       </div>

@@ -18,21 +18,21 @@ export default function ConversationChat(){
            console.log("This chat is active: ",activeChat)
            console.log("Messages  active: ",messagesOfActiveChat)
 
-         
-
     },[chat])
 
    
+
+
     const chatModel  = {
-        connectionId :'',
-        user : '',
-        isChatConversationActive: false,
-        
+        connectionId :'1',
+        user : 'Kristi',
+        isChatConversationActive: true,
+        chatType:'groupChat',
          message: [
             {
-                messageSent : '',
-                dateTimeSent : '',
-                isOutgoing : true
+                messageSent : 'This message is ingoing',
+                dateTimeSent : '18:20',
+                isOutgoing : false
             }      
          ],     
       }
@@ -47,6 +47,7 @@ export default function ConversationChat(){
             <ChatMessage 
                 key={index}               
                 message={msg?.messageSent}
+                messageSender={msg?.messageSender}
                 isOutgoing={msg?.isOutgoing}     
                 timeSent = {msg?.dateTimeSent}        
             />
