@@ -21,18 +21,25 @@ function handleSetChatActive(connectionId){
   console.log("Selected chat contact:", selectedContact)
   if(selectedContact){
    selectedContact.isChatConversationActive = true;
+   selectedContact.message?.map(msg => ({        
+    ...msg,
+    isReaded : msg?.senderConnectionId !== currentUserConnectionId ?  msg.isReaded = true : msg.isReaded
+  }))
   }
   
+ /* const updateMessagesAsReaded = selectedContact?.message?.map(msg => ({
+    ...msg,
+    isReaded : msg.isReaded = true
+  }))*/
 
 const updateChat = chat?.map(chatItem => ({
     ...chatItem,
     isChatConversationActive: chatItem.connectionId === connectionId
 }))
 
-
   actions({type: "setChat", payload:updateChat})
-
 }
+
 
 useEffect(() => {
     registerReceivePrivateMessageHandler((user, message, listenSenderId,senderConnectionId) => {
@@ -83,9 +90,11 @@ useEffect(() => {
       console.log("Ky eshte chati: ",chat)
      const messageModel = {
         messageSent: recieveMessage?.message,
-        messageSender: recieveMessage?.fromUser,
-        dateTimeSent: GetDateTimeNow(),
-        isOutgoing: false
+        senderName: recieveMessage?.fromUser,
+        senderConnectionId: recieveMessage?.fromReceiverId,
+        isOutgoing: false,
+        isReaded : false,
+        dateTimeSent: GetDateTimeNow()
       };
 
     const updatedChat = chat.map(chatItem => {
@@ -105,14 +114,14 @@ useEffect(() => {
   const messageModel = {
     messageSent : recieveMessage?.message,
     dateTimeSent : GetDateTimeNow(),
-    isOutgoing : false
+    isOutgoing : false,
+    isReaded : false
   }
   
 const isCurrentUserSenderOfMessage = () =>{
   let isCurrentUserTheSender = false
   
 }
-
   function GetDateTimeNow(){
     const currentDateTime = new Date();
     const hours = currentDateTime.getHours().toString().padStart(2, '0');

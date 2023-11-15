@@ -6,21 +6,45 @@ import { registerReceivePrivateMessageHandler } from "../../clientSignalR";
 export default function ConversationChat(){
 
     const[recieveMessage, setRecieveMessage] = useState()
-    const{contact,chat,actions} = useContext(Context)
+    const{contact,currentUserConnectionId,chat,actions} = useContext(Context)
     const[activeChat, setActiveChat] = useState()
     const[messagesOfActiveChat, setMessagesOfActiveChat] = useState()
+    const[isActiveChat, setIsActiveChat] = useState(false)
    
     useEffect(() =>{
          const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
-         const getMessages = getActiveChat?.message?.map((msg) => msg)
-         setActiveChat(getActiveChat)
-         setMessagesOfActiveChat(getMessages)
+       
+         setActiveChat(getActiveChat)  
            console.log("This chat is active: ",activeChat)
-           console.log("Messages  active: ",messagesOfActiveChat)
+           setIsActiveChat(!isActiveChat)
+           if(activeChat?.isChatConversationActive ===true ){
+            const getmsg =   activeChat?.message?.map(msg => ({        
+                 ...msg,
+                 isReaded : msg?.senderConnectionId !== currentUserConnectionId ?  msg.isReaded = true : msg.isReaded
+               }))
+               setMessagesOfActiveChat(getmsg)
+              }
 
     },[chat])
 
+    useEffect(() =>{
+
+         
+    const updateChat = chat?.map(chatItem => {
+      if (chatItem.connectionId === activeChat.connectionId) {
+        return activeChat; // If connectionId matches, set chatItem to activeChat
+      } else {
+        return chatItem; // Otherwise, keep the chatItem as it is
+      }
+    });
    
+    actions({type: "setChat", payload:updateChat})  
+  
+           
+
+   },[])
+
+   console.log("mwsfrfne ",messagesOfActiveChat)
 
 
     const chatModel  = {
@@ -32,7 +56,8 @@ export default function ConversationChat(){
             {
                 messageSent : 'This message is ingoing',
                 dateTimeSent : '18:20',
-                isOutgoing : false
+                isOutgoing : false,
+                isReaded : false
             }      
          ],     
       }
@@ -48,6 +73,7 @@ export default function ConversationChat(){
                 key={index}               
                 message={msg?.messageSent}
                 messageSender={msg?.messageSender}
+                isReaded={msg.isReaded}
                 isOutgoing={msg?.isOutgoing}     
                 timeSent = {msg?.dateTimeSent}        
             />

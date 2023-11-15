@@ -79,6 +79,7 @@ const handleCreateNewContact = async () =>{
     }
    
     const connectionidExist = await checkIfUserConnectionIdExsit();
+    console.log("conID exisist:::::" , connectionidExist)
     if(connectionidExist === true){
        const chatType = 'privateChat';
       const contactModel = {
@@ -129,6 +130,8 @@ function createConversationChatForNewContact(name, connectionId, chatType){
      message: [
         {
             messageSent : 'Contact 2 sent this message!',
+            senderName: '',
+            senderConnectionId: '',
             dateTimeSent : '',
             isOutgoing : true
         } 
@@ -324,9 +327,9 @@ const checkIfAlreadyExistARoomWithSameName = () =>{
             {activeChat ? 
             <div className="chatConversation-navbar">
               <div className="userDetails-chatConversation">
-                <img src={activeChat.chattype === 'privateChat' ? defaultProfilePic : groupIcon} 
+                <img src={activeChat.chatType === 'privateChat' ? defaultProfilePic : groupIcon} 
                 alt="profile-pic"  />
-                <p>{activeChat.chattype === 'privateChat' ? activeChat?.user : activeChat?.connectionId}</p>
+                <p>{activeChat.chatType === 'privateChat' ? activeChat?.user : activeChat?.connectionId}</p>
               </div>
               <div className="calling-icons-container">
                 <img src={videoCallIcon} alt="camera-icon" />

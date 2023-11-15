@@ -6,9 +6,10 @@ import SentMessageIcon from "../../images/paper.png"
 import {sendPrivateMessage,sendGroupMessage} from "../../clientSignalR"
 import Context from "../../context/Context";
 
+
 export default function SentMessageBar(){
 
-  const{contact,chat,actions} = useContext(Context)
+  const{contact,chat,currentUserConnectionId,actions} = useContext(Context)
     const[activeChat, setActiveChat] = useState()
     const[messagesOfActiveChat, setMessagesOfActiveChat] = useState()
     const[typedMessage,setTypedMessage] = useState('')
@@ -23,6 +24,7 @@ export default function SentMessageBar(){
     },[chat])
 
   function sendMessage(){
+    console.log("ky eshte con ", contact)
     try {
      if(activeChat && typedMessage){
       if(activeChat.chatType === 'privateChat'){
@@ -53,8 +55,11 @@ export default function SentMessageBar(){
 console.log(activeChat)
   const messageModel = {
     messageSent : typedMessage,
-    dateTimeSent : GetDateTimeNow(),
-    isOutgoing : true
+    senderName: contact?.name,
+    senderConnectionId: currentUserConnectionId,
+    isOutgoing : true,
+    isReaded : false,
+    dateTimeSent : GetDateTimeNow()
   }
 
   function handleSetChatActive(){
@@ -73,6 +78,7 @@ console.log(activeChat)
   const handleTypedMessage = (event) =>{  
     setTypedMessage(event.target.value)
   }
+
 
   function handleKeyPress(event) {
     if (event?.key === "Enter") {
