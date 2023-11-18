@@ -44,9 +44,19 @@ const registerReceiveMessageJoinRoomHandler = (sender, message, room) =>{
   
 }
 
-const registerReceivePrivateMessageHandler = (user, message,listenSenderId) => {
+const registerReceivePrivateMessageHandler = (user, message,senderConnectionId, listenSenderId,messageId,chatType) => {
     try {
-        hubConnection.on("ReceivePrivateMessage",user, message,listenSenderId)
+        hubConnection.on("ReceivePrivateMessage",user, message, senderConnectionId,listenSenderId,messageId,chatType)
+    } catch (error) {
+        console.log("Error while listening for private message: ",error)
+    }
+    
+}
+
+
+const registerReceiveGroupMessageHandler = (user, message,roomName, senderConnectionId,messageId) => {
+    try {
+        hubConnection.on("ReceiveGroupMessage",user, message, roomName,senderConnectionId,messageId)
     } catch (error) {
         console.log("Error while listening for private message: ",error)
     }
@@ -80,24 +90,36 @@ const sendMessage = async (user, message) => {
     }
   };
 
-  const sendPrivateMessage = async (senderName,message,receiverConnectionId) =>{
+  const sendPrivateMessage = async (senderName,message,receiverConnectionId,messageId) =>{
     try {
-         await hubConnection.invoke("SendPrivateMessage",senderName,message,receiverConnectionId)
+         await hubConnection.invoke("SendPrivateMessage",senderName,message,receiverConnectionId,messageId)
     } catch (error) {
         console.error("Error occured while sending private message: ", error);
     }
    
   }
 
-  const sendGroupMessage = async (message, room) =>{
+  const sendGroupMessage = async (message, room,messageId) =>{
     try {
-       await hubConnection.invoke("SendGroupMessage",message, room) 
+       await hubConnection.invoke("SendGroupMessage",message, room,messageId) 
     } catch (error) {
         console.error(error)
     }
      
   }
 
+  const markMessageAsReaded = async (messageId,currentUserConnectionId,senderConnectionId) =>{
+    try {
+       await hubConnection.invoke("MarkMessageAsReaded",messageId,currentUserConnectionId,senderConnectionId) 
+    } catch (error) {
+        console.error(error)
+    }
+     
+  }
+
+  const registerMarkMessageAsReaded =  (messageId, receiverConnectionId, senderConnectionId) =>{
+    hubConnection.on("ListenMarkAsReaded",messageId, receiverConnectionId, senderConnectionId)
+ }
   const registerRecieveGroupMessage =  (handler) =>{
      hubConnection.on("ReceiveGroupMessage",handler)
   }
@@ -138,6 +160,7 @@ const checkIfAlreadyRoomExist = async (room) =>{
 }
 
 export {startHubConnection,createNewContact,createNewGroup,getPersonalConnectionId,sendMessage,checkIfAlreadyRoomExist,
-    registerReceiveMessageHandler,getAllConnectedUsers,registerRecieveVerificationRoomExist,
+    registerReceiveMessageHandler,getAllConnectedUsers,registerRecieveVerificationRoomExist,markMessageAsReaded,
+    registerReceiveGroupMessageHandler,
     registerConnectionIdExist,registerReceiveMessageJoinRoomHandler,sendGroupMessage,registerRecieveGroupMessage,
-    registerGetUserId,registerSendConnectedUsersHandler,sendPrivateMessage,registerReceivePrivateMessageHandler};
+    registerGetUserId,registerSendConnectedUsersHandler,sendPrivateMessage,registerReceivePrivateMessageHandler,registerMarkMessageAsReaded};

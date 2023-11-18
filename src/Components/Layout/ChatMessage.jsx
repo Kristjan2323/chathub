@@ -10,7 +10,7 @@ export default function ChatMessage({message,messageSender,isReaded,isOutgoing,t
     useEffect(() =>{
       const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
       setActiveChat(getActiveChat)
-        console.log("This chat is active: ",activeChat)
+     
        
       },[chat])
 
@@ -22,10 +22,7 @@ export default function ChatMessage({message,messageSender,isReaded,isOutgoing,t
 
           
     const messageClas = isOutgoing ? 'outgoing-message' : 'incoming-message';
-    console.log( "Koha e dergimit te mesaxhit:: ",timeSent)
-   
-  
-    console.log("is read". isReaded)
+ 
 
     return(
          <section>

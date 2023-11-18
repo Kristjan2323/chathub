@@ -65,7 +65,6 @@ useEffect(() =>{
 
 },[chat])
 
-console.log("Ky eshte active chat in nav: ",activeChat)
 
 
 

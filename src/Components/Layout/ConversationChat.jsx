@@ -13,38 +13,27 @@ export default function ConversationChat(){
    
     useEffect(() =>{
          const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
-       
-         setActiveChat(getActiveChat)  
+         const getMessages = getActiveChat?.message?.map((msg) => msg)
+         setActiveChat(getActiveChat)
+         setMessagesOfActiveChat(getMessages)
            console.log("This chat is active: ",activeChat)
            setIsActiveChat(!isActiveChat)
-           if(activeChat?.isChatConversationActive ===true ){
-            const getmsg =   activeChat?.message?.map(msg => ({        
-                 ...msg,
-                 isReaded : msg?.senderConnectionId !== currentUserConnectionId ?  msg.isReaded = true : msg.isReaded
-               }))
-               setMessagesOfActiveChat(getmsg)
-              }
 
     },[chat])
 
-    useEffect(() =>{
+   /* useEffect(() =>{
 
-         
-    const updateChat = chat?.map(chatItem => {
-      if (chatItem.connectionId === activeChat.connectionId) {
-        return activeChat; // If connectionId matches, set chatItem to activeChat
-      } else {
-        return chatItem; // Otherwise, keep the chatItem as it is
-      }
-    });
-   
-    actions({type: "setChat", payload:updateChat})  
-  
+        if(activeChat?.isChatConversationActive ===true ){
+         const getmsg =   activeChat?.message?.map(msg => ({        
+              ...msg,
+              isReaded : msg?.senderConnectionId !== currentUserConnectionId ?  msg.isReaded = true : msg.isReaded
+            }))
+                setMessagesOfActiveChat(getmsg)
+           }
            
+   },[isActiveChat]) */
 
-   },[])
-
-   console.log("mwsfrfne ",messagesOfActiveChat)
+  
 
 
     const chatModel  = {

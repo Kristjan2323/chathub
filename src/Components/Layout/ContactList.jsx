@@ -3,7 +3,8 @@ import defaultProfilePic from "../../images/person_favicon.png"
 import groupIcon from "../../images/group.png"
 import checkMark from "../../images/checkmark-double-svgrepo-com.svg"
 import {getPersonalConnectionId, startHubConnection,
-    registerReceiveMessageHandler,registerReceivePrivateMessageHandler,registerReceiveMessageJoinRoomHandler,
+    registerReceiveMessageHandler,markMessageAsReaded,registerReceiveGroupMessageHandler,
+    registerReceivePrivateMessageHandler,registerReceiveMessageJoinRoomHandler,
     sendMessage} from "../../clientSignalR"
     import useGlobalState from "../../context/useGlobalState";
 import Context from "../../context/Context";
@@ -13,7 +14,10 @@ export default function ContactList(){
 
 const{contact,currentUserConnectionId,chat,actions} = useContext(Context)
 const[recieveMessage, setRecieveMessage] = useState(null)
-
+const[isMessageReaded,setIsMessageReaded] = useState(false)
+const[lastMessage,setLastMessage] = useState(null)
+const[activeChat, setActiveChat] = useState()
+const[isChatSetActive, setIsChatSetActive] = useState(false)
 
 function handleSetChatActive(connectionId){
    
@@ -21,10 +25,7 @@ function handleSetChatActive(connectionId){
   console.log("Selected chat contact:", selectedContact)
   if(selectedContact){
    selectedContact.isChatConversationActive = true;
-   selectedContact.message?.map(msg => ({        
-    ...msg,
-    isReaded : msg?.senderConnectionId !== currentUserConnectionId ?  msg.isReaded = true : msg.isReaded
-  }))
+   markMessageAsReaded('',currentUserConnectionId,connectionId)
   }
   
  /* const updateMessagesAsReaded = selectedContact?.message?.map(msg => ({
@@ -40,15 +41,34 @@ const updateChat = chat?.map(chatItem => ({
   actions({type: "setChat", payload:updateChat})
 }
 
+useEffect(() =>{
+  const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
+  setActiveChat(getActiveChat)
+  if(!getActiveChat) return
+ 
+  setIsChatSetActive(!isChatSetActive)
+},[chat])
 
+
+
+function getLastMessage(connectionId){
+  const currentChat = chat?.find((chatItem ) => chatItem?.connectionId === connectionId)
+     const lastMessage = currentChat?.message[currentChat.message?.length - 1]
+     console.log("sms e fundit:: ", lastMessage)
+  return lastMessage?.messageSent
+}
+
+//listen for the new message that is incoming
 useEffect(() => {
-    registerReceivePrivateMessageHandler((user, message, listenSenderId,senderConnectionId) => {
+    registerReceivePrivateMessageHandler((user, message,senderConnectionId, listenSenderId,messageId,chatType) => {
       if(user === null || user === undefined || message === null || message === undefined) return;
       const receiveMessageModel = {
         fromUser: user,
         message: message,
+        messageId : messageId,
         fromReceiverId: listenSenderId,
-        senderConnectionId : senderConnectionId
+        senderConnectionId : senderConnectionId,
+        chatType : chatType
       };
     
       setRecieveMessage(receiveMessageModel)
@@ -56,6 +76,7 @@ useEffect(() => {
     });
   }, []);
 
+  /* notify the team that new member has enter*/
   useEffect(() => {
     registerReceiveMessageJoinRoomHandler((sender,userJoined,room) =>{
       const message = (
@@ -67,7 +88,8 @@ useEffect(() => {
         fromUser: sender,
         message: message,
         fromReceiverId: room,
-        senderConnectionId : room
+        senderConnectionId : room,
+        chatType: 'groupChat'
       };
     
       setRecieveMessage(receiveMessageModel)
@@ -75,14 +97,27 @@ useEffect(() => {
     })
   })
 
+  //add new incoming message in chat conversation
   useEffect(() => {
     if (recieveMessage) {
       if(!recieveMessage.message) return;
-      AddMessageToChat();
+     
+      AddMessageToChat();    
+     
       console.log("conn Id e derguesit:: ",recieveMessage.senderConnectionId)
     }
   }, [recieveMessage]);
   
+function checkIfMessageIsReaded(senderConnectionId,currentUserConnectionId,messageId){
+  if(activeChat?.connectionId === senderConnectionId ){
+    markMessageAsReaded(messageId,currentUserConnectionId,senderConnectionId)
+    return true
+  }
+  else{
+    return false
+  }
+}
+
   function AddMessageToChat() {
     if (!chat) return;
     if(currentUserConnectionId === recieveMessage.senderConnectionId) return;
@@ -90,15 +125,17 @@ useEffect(() => {
       console.log("Ky eshte chati: ",chat)
      const messageModel = {
         messageSent: recieveMessage?.message,
+        messageId: recieveMessage?.messageId,
         senderName: recieveMessage?.fromUser,
         senderConnectionId: recieveMessage?.fromReceiverId,
         isOutgoing: false,
-        isReaded : false,
+        isReaded : checkIfMessageIsReaded(recieveMessage?.senderConnectionId,recieveMessage?.fromReceiverId,recieveMessage?.messageId),
         dateTimeSent: GetDateTimeNow()
       };
 
     const updatedChat = chat.map(chatItem => {
-      if (chatItem.connectionId === recieveMessage?.fromReceiverId) {
+      if(recieveMessage?.chatType === 'privateChat'){
+         if (chatItem?.connectionId === recieveMessage?.senderConnectionId) {
         return {
           ...chatItem,
           message: [...chatItem.message, messageModel]  // Add the new message to the chatItem's message array
@@ -106,10 +143,51 @@ useEffect(() => {
       } else {
         return chatItem; // Keep other chatItems as they are
       }
+      }
+      if(recieveMessage?.chatType === 'groupChat'){
+        if (chatItem.connectionId === recieveMessage?.fromReceiverId) {
+          return {
+            ...chatItem,
+            message: [...chatItem.message, messageModel]  // Add the new message to the chatItem's message array
+          };
+        } else {
+          return chatItem; // Keep other chatItems as they are
+        }
+      }
+     
     });
     console.log("kte chatin po mundohemi ta upd: ",updatedChat)
     actions({ type: "setChat", payload: updatedChat });
   }
+
+  const handleReadMessage = (messageId) => {
+    const updatedChat = chat.map(chatItem => {
+      if (chatItem.connectionId === recieveMessage?.fromReceiverId) {
+        const updatedMessages = chatItem.message.map(msg => {
+          if (msg.id === messageId) {
+         
+            return {
+              ...msg,
+              isReaded: true,
+            };
+          } else {
+            return msg; // Keep other messages as they are
+          }
+        });
+  
+        return {
+          ...chatItem,
+          message: updatedMessages,
+        };
+      } else {
+        return chatItem; // Keep other chatItems as they are
+      }
+    });
+  
+    console.log("Updated chat after reading message: ", updatedChat);
+    actions({ type: "setChat", payload: updatedChat });
+  };
+  
 
   const messageModel = {
     messageSent : recieveMessage?.message,
@@ -148,7 +226,7 @@ const isCurrentUserSenderOfMessage = () =>{
                         <p className="contact-name">{cont.name}</p>
                         <div className="message-checkMark-container">
                             <img className="checkMarg-icon" src={checkMark} alt="checkMark" />
-                            <p className="last-message-sent">Last message </p>  
+                            <p className="last-message-sent">{getLastMessage(cont.connectionId)}</p>  
                         </div>                    
                     </div>
                     <div className="last-message-sent-cont">

@@ -3,9 +3,9 @@ import EmojiIcons from "../../images/emoji.png"
 import AtachFileIcons from "../../images/attach-file.png"
 import VoiceIcon from "../../images/voice.png"
 import SentMessageIcon from "../../images/paper.png"
-import {sendPrivateMessage,sendGroupMessage} from "../../clientSignalR"
+import {sendPrivateMessage,sendGroupMessage,registerMarkMessageAsReaded} from "../../clientSignalR"
 import Context from "../../context/Context";
-
+import { nanoid } from "nanoid";
 
 export default function SentMessageBar(){
 
@@ -13,30 +13,56 @@ export default function SentMessageBar(){
     const[activeChat, setActiveChat] = useState()
     const[messagesOfActiveChat, setMessagesOfActiveChat] = useState()
     const[typedMessage,setTypedMessage] = useState('')
-   
+    const[currentMessageId,setCurrentMessageId] = useState('')
+    const[recieveMessage, setRecieveMessage] = useState(null)
+    const[isMessageReaded,setIsMessageReaded] = useState(false)
+
     useEffect(() =>{
          const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
          const getMessages = getActiveChat?.message?.map((msg) => msg)
          setActiveChat(getActiveChat)
          setMessagesOfActiveChat(getMessages)
-           console.log("This chat is active: ",activeChat)
-           console.log("Messages  active: ",messagesOfActiveChat)
+    
     },[chat])
 
+    useEffect(() =>{
+      if(chat.length === 0) return
+      const getCurrentChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
+      registerMarkMessageAsReaded((messageId, receiverConnectionId, senderConnectionId) =>{
+        if(receiverConnectionId === undefined || receiverConnectionId === null || receiverConnectionId === '') return
+        if (getCurrentChat) {
+          const updatedMessages = getCurrentChat.message.map(messageItem => ({
+            ...messageItem,
+            isReaded: true,
+          }));
+    
+          actions({ type: "setChat", payload: chat.map(chatItem => 
+            chatItem?.connectionId === receiverConnectionId ? { ...chatItem, message: updatedMessages } : chatItem
+          ) });
+
+        } else {
+          console.log("getCurrentChat not found for connectionId:", receiverConnectionId);
+        }
+  
+      })
+      
+    })
+
   function sendMessage(){
-    console.log("ky eshte con ", contact)
     try {
      if(activeChat && typedMessage){
+      const getMessageId = nanoid();
+      setCurrentMessageId(getMessageId)
       if(activeChat.chatType === 'privateChat'){
-        sendPrivateMessage('Kristi',typedMessage,activeChat.connectionId)
+        sendPrivateMessage('Kristi',typedMessage,activeChat.connectionId,currentMessageId)
       }
       else{
-        sendGroupMessage(typedMessage,activeChat.connectionId)
+        sendGroupMessage(typedMessage,activeChat.connectionId,currentMessageId)
       }
       updateActiveChat()
       handleSetChatActive()
      setTypedMessage('')
-     console.log(chat)
+    
      }
         
     } catch (error) {
@@ -50,11 +76,15 @@ export default function SentMessageBar(){
       ...prevActiveChat,
       prevActiveChat : prevActiveChat.message.push(messageModel)
     }))
+    
   }
+
+
   
-console.log(activeChat)
+
   const messageModel = {
     messageSent : typedMessage,
+    messageId : currentMessageId,
     senderName: contact?.name,
     senderConnectionId: currentUserConnectionId,
     isOutgoing : true,
@@ -75,6 +105,14 @@ console.log(activeChat)
     actions({type: "setChat", payload:updateChat})  
   }
   
+
+
+
+
+//degjon per mesazhin e derguar
+
+
+
   const handleTypedMessage = (event) =>{  
     setTypedMessage(event.target.value)
   }
