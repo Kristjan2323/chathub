@@ -1,9 +1,9 @@
 import React,{useSttate,useEffect, useState, useContext} from "react";
 import defaultProfilePic from "../../images/person_favicon.png"
 import groupIcon from "../../images/group.png"
-import checkMark from "../../images/checkmark-double-svgrepo-com.svg"
-import {getPersonalConnectionId, startHubConnection,
-    registerReceiveMessageHandler,markMessageAsReaded,registerReceiveGroupMessageHandler,
+import DoubleTick from "../../images/checkmark-double-svgrepo-com.svg"
+import DoubleTickBlue from "../../images/double-tick-blue-50.png"
+import {  registerReceiveMessageHandler,markMessageAsReaded,registerReceiveGroupMessageHandler,
     registerReceivePrivateMessageHandler,registerReceiveMessageJoinRoomHandler,
     sendMessage} from "../../clientSignalR"
     import useGlobalState from "../../context/useGlobalState";
@@ -22,40 +22,62 @@ const[isChatSetActive, setIsChatSetActive] = useState(false)
 function handleSetChatActive(connectionId){
    
   const selectedContact = chat?.find((itemChat) => itemChat.connectionId === connectionId);
-  console.log("Selected chat contact:", selectedContact)
-  if(selectedContact){
-   selectedContact.isChatConversationActive = true;
-   markMessageAsReaded('',currentUserConnectionId,connectionId)
-  }
-  
- /* const updateMessagesAsReaded = selectedContact?.message?.map(msg => ({
-    ...msg,
-    isReaded : msg.isReaded = true
-  }))*/
+   if(selectedContact){
+ selectedContact.isChatConversationActive = true;
+
+ markMessageAsReaded('',currentUserConnectionId,connectionId)
+}
+
 
 const updateChat = chat?.map(chatItem => ({
-    ...chatItem,
-    isChatConversationActive: chatItem.connectionId === connectionId
+  ...chatItem,
+  isChatConversationActive: chatItem.connectionId === connectionId,
+  message: (chatItem.message || []).map(messageItem => ({
+    ...messageItem,
+    isReaded: true,
+  })),
 }))
 
-  actions({type: "setChat", payload:updateChat})
+actions({type: "setChat", payload:updateChat})
+ 
 }
 
 useEffect(() =>{
   const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
   setActiveChat(getActiveChat)
-  if(!getActiveChat) return
- 
-  setIsChatSetActive(!isChatSetActive)
 },[chat])
-
 
 
 function getLastMessage(connectionId){
   const currentChat = chat?.find((chatItem ) => chatItem?.connectionId === connectionId)
-     const lastMessage = currentChat?.message[currentChat.message?.length - 1]
-     console.log("sms e fundit:: ", lastMessage)
-  return lastMessage?.messageSent
+     const lastMessageObject = currentChat?.message[currentChat.message?.length - 1]
+     if (!lastMessageObject || typeof lastMessageObject.messageSent !== 'string') {
+      return null; // or any other default value or indicator
+    }
+     console.log("sms e fundit:: ", lastMessageObject)
+     const lastMessage = lastMessageObject?.messageSent
+     let lastMessage23Characters = ''
+     if(lastMessage?.length > 20){
+       lastMessage23Characters = lastMessageObject?.messageSent?.substring(0,20) + '...'
+     }
+     else{
+       lastMessage23Characters = lastMessageObject?.messageSent
+     }
+     
+  return lastMessage23Characters
+}
+
+function getLastMessageStatus(connectionId){
+  const currentChat = chat?.find((chatItem ) => chatItem?.connectionId === connectionId)
+     const lastMessageObject = currentChat?.message[currentChat.message?.length - 1]
+  
+  return lastMessageObject
+}
+
+function getNumberOfUnreadedMessages(connectionId){
+  const currentChat = chat?.find((chatItem ) => chatItem?.connectionId === connectionId)
+  const unreadedMessages = currentChat?.message?.filter(msg => msg.isReaded === false)
+  return unreadedMessages.length
 }
 
 //listen for the new message that is incoming
@@ -218,15 +240,21 @@ const isCurrentUserSenderOfMessage = () =>{
                     <div className="profile-image-container">
                         <img className="profile-image" 
                         src={cont.chatType === 'privateChat' ? defaultProfilePic: groupIcon}
-                         alt="profile-picture" />
-                        
+                         alt="profile-picture" />            
                     </div>
                     <div className="contact-cntainer">
                     <div className="contact-name-time-container">
                         <p className="contact-name">{cont.name}</p>
                         <div className="message-checkMark-container">
-                            <img className="checkMarg-icon" src={checkMark} alt="checkMark" />
-                            <p className="last-message-sent">{getLastMessage(cont.connectionId)}</p>  
+                          {getLastMessageStatus(cont.connectionId)?.isOutgoing ===true ?
+                            <img className="checkMarg-icon" 
+                            src={ getLastMessageStatus(cont.connectionId)?.isReaded === true ? DoubleTickBlue : DoubleTick } 
+                            alt="checkMark" /> :<span>&nbsp;</span>}
+                            <p className="last-message-sent">{ getLastMessage(cont.connectionId)}</p>  
+                            {getNumberOfUnreadedMessages(cont.connectionId) > 0 && 
+                            getLastMessageStatus(cont.connectionId)?.isOutgoing === false ? 
+                            <p className="number-unreaded-messages">{getNumberOfUnreadedMessages(cont.connectionId)}</p>
+                           : <span>&nbsp;</span>}
                         </div>                    
                     </div>
                     <div className="last-message-sent-cont">

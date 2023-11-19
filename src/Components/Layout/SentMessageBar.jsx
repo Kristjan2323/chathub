@@ -61,8 +61,7 @@ export default function SentMessageBar(){
       }
       updateActiveChat()
       handleSetChatActive()
-     setTypedMessage('')
-    
+      setTypedMessage('')
      }
         
     } catch (error) {
@@ -107,11 +106,7 @@ export default function SentMessageBar(){
   
 
 
-
-
 //degjon per mesazhin e derguar
-
-
 
   const handleTypedMessage = (event) =>{  
     setTypedMessage(event.target.value)
