@@ -21,8 +21,9 @@ const[showNewGroupForm, setNewGroupForm]= useState(false)
 const[inputConectionId,setInputConnectionId] =useState('')
 const[inputRoomName,setInputRoomName] =useState('')
 const[inputName,setInputName] = useState('')
+const[inputSearchContact,setInputSearchContact] = useState('')
 const[userConnectionId,setUserConnectionId] = useState('')
-const {contact,currentUserConnectionId,groupContact,chat,actions} = useContext(Context)
+const {contact,currentUserConnectionId,filterContact,chat,actions} = useContext(Context)
 const[activeChat, setActiveChat] = useState()
 let newChatFormRef = useRef();
 useEffect(() =>{
@@ -74,6 +75,10 @@ const handleCreateNewContact = async () =>{
     createNewContact(inputName,inputConectionId);
     if(checkIfUserExistInContacList(inputConectionId) === true) {
        console.log("User already exist in your contacts.")
+       setInputName('')
+       setInputConnectionId('')
+       setShowCreateChat(false)
+       setNewChatForm(false)
        return
     }
    
@@ -89,6 +94,10 @@ const handleCreateNewContact = async () =>{
           actions({type: "setContact", payload:[...contact,contactModel]})  
          
           createConversationChatForNewContact(inputName,inputConectionId,chatType)
+          setInputName('')
+          setInputConnectionId('')
+          setShowCreateChat(false)
+          setNewChatForm(false)
     }
      
   } catch (error) {
@@ -128,7 +137,7 @@ function createConversationChatForNewContact(name, connectionId, chatType){
     chatType : chatType,
      message: [
         {
-            messageSent : 'Contact 2 sent this message!',
+            messageSent : 'Contact created!',
             senderName: '',
             senderConnectionId: '',
             dateTimeSent : '',
@@ -151,6 +160,10 @@ const handleCreateNewGroup = async () => {
 
     if (doesRoomExist) {
       console.log("Room already exists");
+      setInputName('')
+      setInputRoomName('')
+      setShowCreateChat(false)
+      setNewGroupForm(false)
       return;
     } 
 
@@ -163,7 +176,10 @@ const handleCreateNewGroup = async () => {
           createConversationChatForNewContact(inputName, inputRoomName, chatType);
          
           resolve(); // Resolve the promise when the handler is done
-      
+          setInputName('')
+          setInputRoomName('')
+          setShowCreateChat(false)
+      setNewGroupForm(false)
       } catch (error) {
         console.log("Error registering message handler", error);
         reject(error);
@@ -236,6 +252,15 @@ const checkIfAlreadyExistARoomWithSameName = () =>{
 
  const handleInputName = (event) =>{
   setInputName(event.target.value)
+ }
+
+ const handleSearchContact = (event) =>{
+  const inputValue = event.target.value;
+  setInputSearchContact(inputValue);
+  const filterContactByName = contact?.filter((contactItem) => contactItem.name.includes(inputValue));
+  console.log(inputValue)
+  actions({type: "setFilterContact", payload:filterContactByName}) 
+  console.log(filterContactByName)
  }
 
  useEffect(() => {
@@ -320,7 +345,12 @@ const checkIfAlreadyExistARoomWithSameName = () =>{
               </div>
               <div className="search-container">
                 <img src={searchIcon} alt="search-icon" className="search-icon" />
-                <input type="search" placeholder="Search..." />
+                <input
+                 type="search"
+                 value={inputSearchContact}
+                 placeholder="Search..." 
+                 onChange={handleSearchContact}
+                 />
               </div>
             </div>
             {activeChat ? 

@@ -4,7 +4,7 @@ import DoubleTick from "../../images/checkmark-double-svgrepo-com.svg"
 import DoubleTickBlue from "../../images/double-tick-blue-50.png"
 export default function ChatMessage({message,messageSender,isReaded,isOutgoing,timeSent}){
 
-    const {contact,currentUserConnectionId,groupContact,chat,actions} = useContext(Context)
+    const {contact,currentUserConnectionId,chat,actions} = useContext(Context)
     const[activeChat, setActiveChat] = useState()
    
     useEffect(() =>{
