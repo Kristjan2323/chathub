@@ -78,9 +78,7 @@ export default function SentMessageBar(){
     
   }
 
-
   
-
   const messageModel = {
     messageSent : typedMessage,
     messageId : currentMessageId,
@@ -104,7 +102,6 @@ export default function SentMessageBar(){
     actions({type: "setChat", payload:updateChat})  
   }
   
-
 
 //degjon per mesazhin e derguar
 

@@ -14,8 +14,6 @@ export default function ContactList(){
 
 const{contact,currentUserConnectionId,filterContact,chat,actions} = useContext(Context)
 const[recieveMessage, setRecieveMessage] = useState(null)
-const[isMessageReaded,setIsMessageReaded] = useState(false)
-const[lastMessage,setLastMessage] = useState(null)
 const[activeChat, setActiveChat] = useState()
 const[isFilterContactActive, setIsFilterContactActive] = useState(false)
 
@@ -45,6 +43,7 @@ useEffect(() =>{
   const getActiveChat = chat?.find((chatItem ) => chatItem?.isChatConversationActive === true)
   setActiveChat(getActiveChat)
 },[chat])
+
 
 useEffect(()=>{
  if(contact.length> 0){
@@ -101,6 +100,27 @@ function getNumberOfUnreadedMessages(connectionId){
   return unreadedMessages.length
 }
 
+ /* notify the team that new member has enter*/
+useEffect(() => {
+  registerReceiveMessageJoinRoomHandler((sender,userJoined,room) =>{
+    const message = (
+      <p>
+        <strong>{`Member ${userJoined}`}</strong> has joined the group.
+      </p>
+    );
+    const receiveMessageModel = {
+      fromUser: sender,
+      message: message,
+      fromReceiverId: room,
+      senderConnectionId : room,
+      chatType: 'groupChat'
+    };
+  
+    setRecieveMessage(receiveMessageModel)
+    console.log(sender,room,userJoined)
+  })
+})
+
 //listen for the new message that is incoming
 useEffect(() => {
     registerReceivePrivateMessageHandler((user, message,senderConnectionId, listenSenderId,messageId,chatType) => {
@@ -119,27 +139,8 @@ useEffect(() => {
     });
   }, []);
 
-  /* notify the team that new member has enter*/
-  useEffect(() => {
-    registerReceiveMessageJoinRoomHandler((sender,userJoined,room) =>{
-      const message = (
-        <p>
-          <strong>{`Member ${userJoined}`}</strong> has joined the group.
-        </p>
-      );
-      const receiveMessageModel = {
-        fromUser: sender,
-        message: message,
-        fromReceiverId: room,
-        senderConnectionId : room,
-        chatType: 'groupChat'
-      };
-    
-      setRecieveMessage(receiveMessageModel)
-      console.log(sender,room,userJoined)
-    })
-  })
-
+ 
+ 
   //add new incoming message in chat conversation
   useEffect(() => {
     if (recieveMessage) {
@@ -161,6 +162,7 @@ function checkIfMessageIsReaded(senderConnectionId,currentUserConnectionId,messa
   }
 }
 
+// send incoming message in chat
   function AddMessageToChat() {
     if (!chat) return;
     if(currentUserConnectionId === recieveMessage.senderConnectionId) return;
@@ -203,42 +205,6 @@ function checkIfMessageIsReaded(senderConnectionId,currentUserConnectionId,messa
     actions({ type: "setChat", payload: updatedChat });
   }
 
-  const handleReadMessage = (messageId) => {
-    const updatedChat = chat.map(chatItem => {
-      if (chatItem.connectionId === recieveMessage?.fromReceiverId) {
-        const updatedMessages = chatItem.message.map(msg => {
-          if (msg.id === messageId) {
-         
-            return {
-              ...msg,
-              isReaded: true,
-            };
-          } else {
-            return msg; // Keep other messages as they are
-          }
-        });
-  
-        return {
-          ...chatItem,
-          message: updatedMessages,
-        };
-      } else {
-        return chatItem; // Keep other chatItems as they are
-      }
-    });
-  
-    console.log("Updated chat after reading message: ", updatedChat);
-    actions({ type: "setChat", payload: updatedChat });
-  };
-  
-
-  const messageModel = {
-    messageSent : recieveMessage?.message,
-    dateTimeSent : GetDateTimeNow(),
-    isOutgoing : false,
-    isReaded : false
-  }
-  
 
   function GetDateTimeNow(){
     const currentDateTime = new Date();

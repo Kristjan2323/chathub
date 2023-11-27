@@ -1,6 +1,7 @@
 import React, {useContext, useEffect,useState,useRef} from "react";
 import newChatIcon from "../../images/newChat.png"
 import filterChatsIcon from "../../images/filterChats.png"
+import copyIcon from "../../images/copyIcon.png"
 import videoCallIcon from "../../images/video-call.png"
 import voiceCallIcon from "../../images/voice-call.png"
 import searchIcon from "../../images/searchIcon.png"
@@ -8,9 +9,8 @@ import defaultProfilePic from "../../images/person_favicon.png"
 import groupIcon from "../../images/group.png"
 import Context from "../../context/Context";
 import {getPersonalConnectionId, startHubConnection,createNewGroup,sendPrivateMessage,checkIfAlreadyRoomExist,
-  registerReceiveMessageHandler,registerSendConnectedUsersHandler,registerReceiveMessageJoinRoomHandler,
   registerRecieveVerificationRoomExist,
-  sendMessage,createNewContact,registerGetUserId,getAllConnectedUsers,registerConnectionIdExist} from "../../clientSignalR"
+  sendMessage,createNewContact,registerGetUserId,registerConnectionIdExist} from "../../clientSignalR"
 import useGlobalState from "../../context/useGlobalState";
 
 
@@ -23,7 +23,7 @@ const[inputRoomName,setInputRoomName] =useState('')
 const[inputName,setInputName] = useState('')
 const[inputSearchContact,setInputSearchContact] = useState('')
 const[userConnectionId,setUserConnectionId] = useState('')
-const {contact,currentUserConnectionId,filterContact,chat,actions} = useContext(Context)
+const {contact,currentUserConnectionId,logedUser,filterContact,chat,actions} = useContext(Context)
 const[activeChat, setActiveChat] = useState()
 let newChatFormRef = useRef();
 useEffect(() =>{
@@ -263,6 +263,22 @@ const checkIfAlreadyExistARoomWithSameName = () =>{
   console.log(filterContactByName)
  }
 
+ 
+  const handleCopyConnectionId = () => {
+    // Select the text to be copied
+    const textConnectionId =logedUser?.connectionId;
+
+    // Use the modern clipboard API
+    navigator.clipboard.writeText(textConnectionId)
+      .then(() => {
+        alert("Text copied to clipboard: " + textConnectionId);
+      })
+      .catch(err => {
+        console.error('Unable to copy text to clipboard', err);
+      });
+    }
+ 
+
  useEffect(() => {
   let handleClickOutside = (e) => {
      if(newChatFormRef?.current){
@@ -286,13 +302,16 @@ const checkIfAlreadyExistARoomWithSameName = () =>{
           <div className="navContact-navChar-container">
             <div className="nav">
                 <div className="nav-container">
-              <div>
-                <h2>Chats</h2>
+              <div className="logedUser-cont">
+                <h2 className="loged-user-name">{logedUser?.name}</h2>
+               
               </div>
               <div className="chat-icon-container">
                 <img className="chat-icon" onClick={handleShowCart} src={newChatIcon} alt="new-Caht" />
                 <img className="chat-icon"  src={filterChatsIcon} alt="filter-chats"  />
+                <img className="chat-icon" onClick={handleCopyConnectionId} src={copyIcon} alt="copy-icon"  />
               </div>
+              
               {showCreateChat && 
               <div className="create-chat-dropdown-cont" >
                 
@@ -343,6 +362,9 @@ const checkIfAlreadyExistARoomWithSameName = () =>{
              </div>
              }
               </div>
+              <div>
+              <h4 className="chats-label">Chats</h4>
+              </div>
               <div className="search-container">
                 <img src={searchIcon} alt="search-icon" className="search-icon" />
                 <input
@@ -372,11 +394,13 @@ const checkIfAlreadyExistARoomWithSameName = () =>{
                
               </div>
               <div className="calling-icons-container">
-                
+              <img src={videoCallIcon} alt="camera-icon" />
+                <img src={voiceCallIcon} alt="call-icon" />
               </div>
              
               </div>}
             </div>
+            
         </nav>
     )
 }

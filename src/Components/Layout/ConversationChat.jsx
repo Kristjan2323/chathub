@@ -1,12 +1,11 @@
 import React, {useEffect, useState,useContext,useRef} from "react";
 import ChatMessage from "./ChatMessage";
 import Context from "../../context/Context";
-import { registerReceivePrivateMessageHandler } from "../../clientSignalR";
+
 
 export default function ConversationChat(){
 
-    const[recieveMessage, setRecieveMessage] = useState()
-    const{contact,currentUserConnectionId,chat,actions} = useContext(Context)
+    const{logedUser,chat,actions} = useContext(Context)
     const[activeChat, setActiveChat] = useState()
     const[messagesOfActiveChat, setMessagesOfActiveChat] = useState()
     const[isActiveChat, setIsActiveChat] = useState(false)
@@ -21,19 +20,7 @@ export default function ConversationChat(){
 
     },[chat])
 
-   /* useEffect(() =>{
-
-        if(activeChat?.isChatConversationActive ===true ){
-         const getmsg =   activeChat?.message?.map(msg => ({        
-              ...msg,
-              isReaded : msg?.senderConnectionId !== currentUserConnectionId ?  msg.isReaded = true : msg.isReaded
-            }))
-                setMessagesOfActiveChat(getmsg)
-           }
-           
-   },[isActiveChat]) */
-
-  
+    
 
 
     const chatModel  = {
@@ -54,7 +41,8 @@ export default function ConversationChat(){
 
       
     return(
-             
+           <>
+           {activeChat?.isChatConversationActive === true ? 
             <div className="chat-conversation">   
             {activeChat && messagesOfActiveChat?.map((msg, index) => (      
 
@@ -69,7 +57,16 @@ export default function ConversationChat(){
             )) }
           
             </div>  
-       
+        :
+        <div className="show-welcome-message-container">
+            <div className="welcome-message">
+                <h2> Hello {logedUser?.name}! 🚀</h2>
+               <p>Create new contacts and start chating... 💬</p>
+             
+            </div>
+        </div>  
+        }
+            </>
        
       
     )

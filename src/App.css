@@ -185,6 +185,29 @@ margin-left: 2.5px;
     margin-bottom: -6px;
   }
 
+
+/* if there is no active chat */
+
+ .show-welcome-message-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  max-height: 800px;
+}
+
+.show-welcome-message-container h2{
+  color: #5e80de;
+  font-size: 45px;
+  margin-left: 20px;
+}
+
+.show-welcome-message-container p{
+  color: grey;
+  font-size: 20px;
+}
+
   /* Start Home sytle */
 
   .main-container{
@@ -258,13 +281,29 @@ margin-left: 2.5px;
    position: relative;
   }
 
+
   .chat-icon-container{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 80px;
+    width: 120px;
     margin-right: 20px;
     cursor: pointer;
+  }
+
+  .logedUser-cont{
+    display: flex;
+    flex-direction: column;
+   
+  }
+
+  .loged-user-name{
+    color: #5e80de;
+  }
+
+  .chats-label{
+    margin-left: 4px;
+   margin-bottom: 6px;
   }
 
   .chat-icon{
@@ -366,8 +405,10 @@ margin-left: 2.5px;
   grid-template-columns: 200px 1fr;
   border-top:1px solid #ccc;
   border-bottom: none;
+  border-right: 1px solid #ccc;
   box-shadow: 0 0 32px 0 rgba(146, 84, 84, 0.15);
   margin-bottom: -5px;
+  margin-right: 25px;
 }
 
 .userDetails-chatConversation{
@@ -375,6 +416,7 @@ margin-left: 2.5px;
   gap: 15px;
   align-items: center;
   margin-left: 10px;
+ 
 }
 
 .calling-icons-container{
@@ -412,7 +454,7 @@ margin-left: 2.5px;
   width: 100%;
   grid-template-columns: 150px 1fr 40px;
   border: 1px solid #ccc;
-  margin-top: -0.5px;
+  margin-top: -1px;
 }
 
 .sent-message-section-icons{
@@ -425,7 +467,7 @@ margin-left: 2.5px;
 
 .sent-message-section-container img{
   width: 18px;
-  padding: 7px;
+  padding: 12px;
   border-radius: 4px;
   
 }
@@ -450,3 +492,61 @@ align-items: center;
   margin-right: 10px;
 }
 
+/* Login Page style */
+.section-login-top{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 600px;
+  
+}
+.section-login{
+  display: flex;
+  justify-content: center;
+  width: 60%;
+  height: 80%;
+  border-radius: 15px;
+  align-items: center;
+  background-color: #7FFFD4;
+  box-shadow: 0 0 32px 0 rgba(146, 84, 84, 0.15);
+}
+
+.login-container{
+  display: flex;
+  flex-direction: column;
+  width: 55%;
+  justify-content: center;
+  justify-self: center;
+  gap: 25px;
+}
+
+.welcome-label{
+  text-align: center;
+  margin-bottom: 15px;
+  color: rgb(116, 113, 113);
+  font-size: 35px;
+}
+
+.inputLogin-connid{
+  background-color: rgb(231, 231, 237);
+}
+
+.inputLogin{
+  padding: 18px;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.btn-inputLogin{
+  background-color: #128C7E;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.btn-inputLogin:hover{
+  background-color: #0c7b70;
+
+}

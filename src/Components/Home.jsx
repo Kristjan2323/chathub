@@ -19,6 +19,8 @@ export default function Home(){
     scrollableContainerRef?.current?.scrollIntoView();
    },[canScroll])
 
+
+
     return(
         <main>
           <div className="main-container">
